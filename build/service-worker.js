@@ -1,54 +1,55 @@
-const CACHE_NAME = "botflix-cache-v1";
-const urlsToCache = [
-  "/", // The root URL
-  "/index.html", // Main HTML file
-  "/App.css", // CSS styles
-  "/App.js", // JavaScript file
-  "/icon-192x192.png", // App icon
-  "/icon-512x512.png", // App icon
-];
+"use strict";
 
-// Install event - caching the specified resources
-self.addEventListener("install", (event) => {
+// Define cache name and resources to cache
+const CACHE_NAME = "site-version-number";
+const urlsToCache = ["/", "/index.html", "/manifest.json", "/App.css"];
+
+// Install service worker and add resources to cache
+self.addEventListener("install", function (event) {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("Opened cache");
+    caches.open(CACHE_NAME).then(function (cache) {
+      console.log("Opened cache and adding resources");
       return cache.addAll(urlsToCache);
     })
   );
 });
 
-// Activate event - cleanup old caches
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log("Deleting old cache:", cacheName);
-            return caches.delete(cacheName);
-          }
-        })
+// Handle fetch events and serve resources from cache or fetch
+self.addEventListener("fetch", function (event) {
+  event.respondWith(
+    caches.match(event.request).then(function (response) {
+      // Return response from cache if found, else fetch from network
+      return (
+        response ||
+        fetch(event.request)
+          .then(function (fetchResponse) {
+            // Cache the new response if it's not already cached
+            return caches.open(CACHE_NAME).then(function (cache) {
+              cache.put(event.request, fetchResponse.clone());
+              return fetchResponse;
+            });
+          })
+          .catch(function () {
+            console.error("Fetch failed, and no cached resource found.");
+          })
       );
     })
   );
 });
 
-// Fetch event - serving cached content when offline
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // If the resource is found in the cache, return it
-      if (response) {
-        return response;
-      }
-      // If the resource is not in the cache, fetch it from the network
-      return fetch(event.request).catch(() => {
-        // Optional: Fallback for specific types of requests
-        if (event.request.destination === "document") {
-          return caches.match("/index.html");
-        }
-      });
+// Activate service worker and delete old caches
+self.addEventListener("activate", function (event) {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(function (cacheNames) {
+      return Promise.all(
+        cacheNames.map(function (cacheName) {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log("Deleting old cache: ", cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
 });

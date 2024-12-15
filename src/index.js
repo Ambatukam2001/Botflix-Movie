@@ -7,18 +7,20 @@ const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
+  window.addEventListener("load", function () {
     navigator.serviceWorker
       .register("/service-worker.js")
-      .then((registration) => {
-        console.log("Service Worker registered: ", registration);
+      .then(function (registration) {
+        console.log(
+          "Service Worker registered with scope:",
+          registration.scope
+        );
       })
-      .catch((registrationError) => {
-        console.log("Service Worker registration failed: ", registrationError);
+      .catch(function (error) {
+        console.log("Service Worker registration failed:", error);
       });
   });
 }
-
 
 root.render(
   <StrictMode>
