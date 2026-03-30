@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#FF002E">
+    <meta name="description" content="BotFlix - Premium Cinematic Experience. Explore thousands of movies and TV shows.">
+    <title>BotFlix - Premium Cinematic Experience</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #FF002E;
+            --primary-glow: rgba(255, 0, 46, 0.4);
+            --bg-dark: #080808;
+            --bg-sidebar: #121212;
+            --bg-card: #181818;
+            --text-main: #ffffff;
+            --text-muted: #8a8a8a;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); font-family: 'Inter', sans-serif; color: var(--text-main); overflow-x: hidden; }
+
+        .app-container { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 80px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 0;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            z-index: 1001;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-logo { color: var(--primary); font-size: 1.5rem; margin-bottom: 3rem; font-weight: 800; }
+        .nav-icons { display: flex; flex-direction: column; gap: 2.2rem; color: var(--text-muted); align-items: center; width: 100%; }
+        .nav-icon { cursor: pointer; transition: all 0.2s ease; font-size: 1.3rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+        .nav-icon:hover, .nav-icon.active { color: white; background: var(--primary); box-shadow: 0 4px 15px var(--primary-glow); transform: translateY(-2px); }
+
+        .main-wrapper { margin-left: 80px; flex: 1; display: flex; flex-direction: column; width: calc(100% - 80px); }
+
+        .top-nav {
+            padding: 1.2rem 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(8,8,8,0.95), transparent);
+            position: fixed;
+            width: calc(100% - 80px);
+            left: 80px;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+        .hamburger { display: none; font-size: 1.3rem; cursor: pointer; color: white; }
+        .nav-links { display: flex; gap: 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links span { cursor: pointer; transition: color 0.2s; }
+        .nav-links span:hover { color: white; }
+
+        .filmbox-logo { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.7rem; letter-spacing: -1px; margin: 0 auto; transition: transform 0.3s; }
+        .filmbox-logo span { color: var(--primary); }
+
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .search-container { position: relative; }
+        .search-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            width: 220px;
+            transition: all 0.3s;
+        }
+        .search-box:focus-within { width: 280px; border-color: var(--primary); background: rgba(255,255,255,0.06); }
+        .search-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 0.9rem; }
+        .search-box i { color: var(--text-muted); font-size: 0.9rem; }
+
+        .hero {
+            position: relative;
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            margin-top: 0;
+            background-size: cover;
+            background-position: center 20%;
+        }
+
+        .hero-content { max-width: 550px; z-index: 2; margin-top: 3rem; }
+        .hero-tag { color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 0.8rem; display: block; }
+        .hero-title { font-family: 'Outfit', sans-serif; font-size: 4rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.2rem; }
+        .hero-meta { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.2rem; font-size: 0.85rem; }
+        .rating { color: #fcc419; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .hero-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            transition: transform 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.95); }
+
+        .content-section { padding: 3rem 6%; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .section-title { font-family: 'Outfit', sans-serif; font-size: 1.8rem; }
+
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+
+        .movie-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid transparent;
+        }
+        .movie-card:hover { transform: translateY(-8px); border-color: var(--border); }
+        .poster-wrapper { position: relative; aspect-ratio: 2/3; overflow: hidden; }
+        .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .movie-card:hover .movie-poster { transform: scale(1.1); }
+        
+        .card-overlay { position: absolute; top: 12px; right: 12px; opacity: 0; transition: 0.3s; }
+        .movie-card:hover .card-overlay { opacity: 1; }
+        .badge-plus { background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+
+        .card-info { padding: 1rem; }
+        .card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); }
+
+        .pricing-section { padding: 5rem 6%; text-align: center; }
+        .pricing-title { font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin-bottom: 3rem; }
+        .plans-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .plan-card { background: var(--bg-sidebar); border: 1px solid var(--border); padding: 2.5rem 2rem; border-radius: 24px; width: 300px; text-align: left; }
+        .plan-price { font-size: 2.8rem; font-weight: 800; margin-bottom: 1.5rem; font-family: 'Outfit', sans-serif; }
+        .plan-price span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+        .plan-card:hover { transform: translateY(-15px) scale(1.02); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.6); background: linear-gradient(135deg, var(--bg-card), #151515); }
+        .plan-card.featured:hover { box-shadow: 0 25px 50px var(--primary-glow); }
+
+        .footer { padding: 4rem 6%; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+
+        /* Mobile Specific Fixes */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); width: 260px; align-items: flex-start; padding: 2rem; }
+            .sidebar.open { transform: translateX(0); box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
+            .main-wrapper { margin-left: 0; width: 100%; }
+            .top-nav { left: 0; width: 100%; padding: 0.8rem 5%; }
+            .hamburger { display: block; }
+            .nav-links { display: none; }
+            .filmbox-logo { font-size: 1.5rem; margin: 0; flex: 1; text-align: center; }
+            .search-box { width: 44px; height: 44px; padding: 0; justify-content: center; border-radius: 50%; border: none; background: transparent; }
+            .search-box input { display: none; }
+            .search-box i { font-size: 1.2rem; color: white; }
+            
+            /* Responsive Search on Mobile */
+            .search-container.active .search-box {
+                position: absolute; right: 0; top: -10px; width: 250px; background: var(--bg-sidebar); 
+                border: 1px solid var(--primary); padding: 0 1rem; border-radius: 10px; height: 44px;
+                display: flex; z-index: 1001;
+            }
+            .search-container.active .search-box input { display: block; }
+
+            .hero { height: 60vh; padding-top: 5rem; }
+            .hero-title { font-size: 2.8rem; }
+            .hero-desc { -webkit-line-clamp: 2; line-clamp: 2; }
+            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+            .card-info { padding: 0.8rem; }
+            .card-title { font-size: 0.85rem; }
+            .pricing-title { font-size: 2rem; }
+            .plan-card { width: 100%; max-width: 350px; transform: none !important; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2.2rem; }
+            .hero { height: 50vh; }
+            .btn-primary { width: 100%; }
+            .nav-right { gap: 0.5rem; }
+            .filmbox-logo { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+        const API_KEY = "9c65b6a6";
+
+        const Sidebar = ({ isOpen, onClose, onFilter }) => (
+            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+                <div className="sidebar-logo" onClick={() => onFilter("Batman")} style={{cursor: 'pointer'}}>◆</div>
+                <div className="nav-icons">
+                    <div className="nav-icon active" onClick={() => { onFilter("Batman"); onClose(); }}><i className="fa-solid fa-house"></i></div>
+                    <div className="nav-icon" onClick={() => { onFilter("movie"); onClose(); }}><i className="fa-solid fa-clapperboard"></i></div>
+                    <div className="nav-icon" onClick={() => { onFilter("series"); onClose(); }}><i className="fa-solid fa-user"></i></div>
+                    <div className="nav-icon" onClick={() => { onFilter("show"); onClose(); }}><i className="fa-solid fa-message"></i></div>
+                    <div className="nav-icon"><i className="fa-solid fa-heart"></i></div>
+                    <div className="nav-icon"><i className="fa-solid fa-folder-open"></i></div>
+                </div>
+            </aside>
+        );
+
+        const Navbar = ({ searchTerm, setSearchTerm, onSearch, onToggleSidebar, onFilter }) => {
+            const [mobileSearch, setMobileSearch] = useState(false);
+            
+            return (
+                <header className="top-nav">
+                    <div className="nav-left">
+                        <div className="hamburger" onClick={onToggleSidebar}><i className="fa-solid fa-bars-staggered"></i></div>
+                        <div className="nav-links">
+                            <span style={{cursor: 'pointer'}} onClick={() => onFilter("movie")}>Movies</span>
+                            <span style={{cursor: 'pointer'}} onClick={() => onFilter("series")}>Series</span>
+                            <span style={{cursor: 'pointer'}} onClick={() => onFilter("show")}>TV Shows</span>
+                        </div>
+                    </div>
+                    
+                    <div className="filmbox-logo" onClick={() => onFilter("Batman")} style={{cursor: 'pointer'}}>Bot<span>Flix</span></div>
+                    
+                    <div className="nav-right">
+                        <div className={`search-container ${mobileSearch ? 'active' : ''}`}>
+                            <form onSubmit={(e) => { onSearch(e); setMobileSearch(false); }} className="search-box">
+                                <input 
+                                    value={searchTerm} 
+                                    onChange={(e) => setSearchTerm(e.target.value)} 
+                                    placeholder="Search movies..."
+                                    onBlur={() => setTimeout(() => setMobileSearch(false), 200)}
+                                />
+                                <i className="fa-solid fa-magnifying-glass" onClick={() => setMobileSearch(!mobileSearch)}></i>
+                            </form>
+                        </div>
+                        <div className="avatar" style={{width: '36px', height: '36px', background: 'linear-gradient(45deg, #222, #444)'}}></div>
+                    </div>
+                </header>
+            );
+        };
+
+        const MovieCard = ({ movie }) => (
+            <div className="movie-card">
+                <div className="poster-wrapper">
+                    <img className="movie-poster" src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450"} alt={movie.Title} />
+                    <div className="card-overlay"><div className="badge-plus"><i className="fa-solid fa-plus"></i></div></div>
+                </div>
+                <div className="card-info">
+                    <h3 className="card-title">{movie.Title}</h3>
+                    <div className="card-meta">
+                        <div className="rating"><i className="fa-solid fa-star"></i> {movie.imdbRating || 'N/A'}</div>
+                        <span>{movie.Year}</span>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Hero = ({ movie }) => {
+            const bg = movie && movie.Poster !== 'N/A' ? movie.Poster : 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=2000';
+            const handleWatch = () => {
+                const title = movie ? movie.Title : 'The Batman';
+                alert(`🎬 Starting playback for: ${title}\n(This is a demo button)`);
+            };
+
+            return (
+                <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, #080808 30%, transparent 100%), url(${bg})` }}>
+                    <div className="hero-content">
+                        <span className="hero-tag">{movie ? 'TOP MATCH' : 'FEATURED MOVIE'}</span>
+                        <h2 className="hero-title">{movie ? movie.Title : 'The Batman'}</h2>
+                        <div className="hero-meta">
+                            <span className="rating"><i className="fa-solid fa-star"></i> {movie ? movie.imdbRating : '8.5'}</span>
+                            <span style={{color: 'var(--text-muted)'}}>{movie ? movie.Genre : 'Action • Crime • Drama'} • {movie ? movie.Year : '2022'}</span>
+                        </div>
+                        <p className="hero-desc">{movie ? movie.Plot : 'Batman ventures into Gotham City\'s underworld when a sadistic killer leaves behind a trail of cryptic clues.'}</p>
+                        <div className="hero-btns"><button className="btn-primary" onClick={handleWatch}>Watch Now</button></div>
+                    </div>
+                </section>
+            );
+        };
+
+        const App = () => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [movies, setMovies] = useState([]);
+            const [featuredMovie, setFeaturedMovie] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState("");
+            const [query, setQuery] = useState("Batman");
+            const [view, setView] = useState("Home");
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+            const fetchMovies = useCallback(async (searchQuery, category) => {
+                if (!searchQuery) return;
+                setLoading(true);
+                setError("");
+                try {
+                    let url = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${encodeURIComponent(searchQuery)}`;
+                    if (category === "movie") url += "&type=movie&y=2024";
+                    if (category === "series") url += "&type=series";
+                    if (category === "show") url += "&type=series&s=comedy";
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.Response === "True") {
+                        setMovies(data.Search);
+                        const resHero = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&i=${data.Search[0].imdbID}`);
+                        const heroData = await resHero.json();
+                        setFeaturedMovie(heroData);
+                    } else { 
+                        setMovies([]); setFeaturedMovie(null); setError(data.Error); 
+                    }
+                } catch { setError("Failed to fetch movies."); }
+                finally { setLoading(false); }
+            }, []);
+
+            useEffect(() => { 
+                if (view === "Home") fetchMovies("Batman");
+                else fetchMovies(view, view);
+            }, [view, fetchMovies]);
+
+            useEffect(() => { 
+                if (query !== "Batman" && query) fetchMovies(query); 
+            }, [query, fetchMovies]);
+
+            const handleSearch = (e) => { 
+                e.preventDefault(); 
+                if (searchTerm.trim()) {
+                    setView("Search Results");
+                    setQuery(searchTerm.trim()); 
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            
+            const handleFilter = (filterType) => {
+              setView(filterType);
+              setSearchTerm("");
+              setIsSidebarOpen(false);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const renderContent = () => {
+                if (view === "Home") {
+                    return (
+                        <React.Fragment>
+                            <Hero movie={featuredMovie} />
+                            <main className="content-section">
+                                <div className="section-header"><h2 className="section-title">Trending Now</h2></div>
+                                {loading ? (
+                                    <div style={{textAlign:'center', padding:'5rem'}}><div className="loading-circle"></div><p>Syncing library...</p></div>
+                                ) : error ? (
+                                    <div style={{textAlign:'center', padding:'5rem', color: 'var(--primary)'}}><p>{error}</p></div>
+                                ) : (
+                                    <div className="movie-grid">{movies.map(m => <MovieCard key={m.imdbID} movie={m} />)}</div>
+                                )}
+                            </main>
+                        </React.Fragment>
+                    );
+                }
+                return (
+                    <main className="content-section" style={{paddingTop: '6rem'}}>
+                        <div className="section-header"><h2 className="section-title">{view.toUpperCase()} Highlights</h2></div>
+                        {loading ? (
+                            <div style={{textAlign:'center', padding:'5rem'}}><div className="loading-circle"></div><p>Loading {view}...</p></div>
+                        ) : error ? (
+                            <div style={{textAlign:'center', padding:'5rem', color: 'var(--primary)'}}><p>{error}</p></div>
+                        ) : (
+                            <div className="movie-grid">{movies.map(m => <MovieCard key={m.imdbID} movie={m} />)}</div>
+                        )}
+                    </main>
+                );
+            };
+
+            return (
+                <div className="app-container">
+                    <Sidebar 
+                        isOpen={isSidebarOpen} 
+                        onClose={() => setIsSidebarOpen(false)} 
+                        onFilter={(type) => { 
+                            if (type === "Batman") setView("Home"); 
+                            else handleFilter(type); 
+                        }}
+                    />
+                    <div className="main-wrapper">
+                        <Navbar 
+                            searchTerm={searchTerm} 
+                            setSearchTerm={setSearchTerm} 
+                            onSearch={handleSearch} 
+                            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                            onFilter={(type) => { 
+                                if (type === "Batman") setView("Home"); 
+                                else handleFilter(type); 
+                            }}
+                        />
+                        {renderContent()}
+                        {view === "Home" && (
+                            <section className="pricing-section">
+                                <h2 className="pricing-title">Choose your plan</h2>
+                                <div className="plans-grid">
+                                    <div className="plan-card">
+                                        <div style={{color:'#8a8a8a', marginBottom: '1rem', fontWeight: 600}}>GOLD</div>
+                                        <div className="plan-price">$9.99<span>/mo</span></div>
+                                        <button className="btn-primary" style={{width:'100%', background:'transparent', border: '1px solid #333', boxShadow: 'none'}}>Join Gold</button>
+                                    </div>
+                                    <div className="plan-card featured">
+                                        <div style={{color:'var(--primary)', marginBottom: '1rem', fontWeight: 600}}>PLATINUM</div>
+                                        <div className="plan-price">$29.99<span>/yr</span></div>
+                                        <button className="btn-primary" style={{width:'100%'}}>Join Platinum</button>
+                                    </div>
+                                    <div className="plan-card">
+                                        <div style={{color:'#8a8a8a', marginBottom: '1rem', fontWeight: 600}}>DIAMOND</div>
+                                        <div className="plan-price">$19.99<span>/yr</span></div>
+                                        <button className="btn-primary" style={{width:'100%', background:'transparent', border: '1px solid #333', boxShadow: 'none'}}>Join Diamond</button>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+                        <footer className="footer">
+                            <div className="filmbox-logo" style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Bot<span>Flix</span></div>
+                            <p>© 2026 BotFlix Entertainment | Premium Cinematic Experience</p>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
