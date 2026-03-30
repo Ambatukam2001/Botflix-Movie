@@ -7,7 +7,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import MovieCard from "./components/MovieCard";
 
-const API_KEY = "9c65b6a6";
+const API_KEY = process.env.REACT_APP_OMDB_API_KEY || "9c65b6a6";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");

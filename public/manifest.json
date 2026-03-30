@@ -1,16 +1,17 @@
 {
-  "name": "Botflix Movie App",
-  "short_name": "Botflix",
-  "description": "Discover movies with Botflix!",
-  "start_url": "/",
+  "name": "BotFlix - Premium Cinematic Experience",
+  "short_name": "BotFlix",
+  "description": "Discover and explore the cinematic world with BotFlix.",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#db0b0b",
+  "background_color": "#080808",
+  "theme_color": "#FF002E",
   "icons": [
     {
       "src": "icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512x512.png",
